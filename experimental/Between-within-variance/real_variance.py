@@ -7,11 +7,9 @@
 import pandas as pd
 import glob
 import xarray as xr
-import numpy as np
-from statsmodels.stats.anova import AnovaRM 
+import numpy as np 
 from scipy import stats
 from matplotlib import pyplot as plt
-import pingouin as pg
 import numpy as np
 import seaborn as sns
 import scipy
@@ -23,8 +21,8 @@ import scipy
 vn = ['fusiform-rh', 'fusiform-lh', 'lingual-lh', 'lingual-rh',
 'cuneus-rh','cuneus-lh', 'lateraloccipital-rh', 'lateraloccipital-lh']
 
-methods = ['coh','ciplv','imcoh','wpli2']
-#methods = ['gpdc', 'ddtf', 'psgp']  #effective measures
+#methods = ['coh','ciplv','imcoh','wpli2']
+methods = ['gpdc', 'ddtf', 'psgp']  #effective measures
 
 
 # In[3]:
@@ -101,7 +99,7 @@ inter_variance_dict = {}
 intra_variance_dict = {}
 
 for method in methods: 
-    subject_files = glob.glob(f'/scratch/nc_outputs/{method}/*_EC.nc')
+    subject_files = glob.glob(f'/scratch/srishyla/{method}/*_EC.nc')
 
     #intra
     
@@ -126,8 +124,8 @@ for method in methods:
             all_bootstraps.append(bootstrap)
     
     random_bootstraps = []
-    for i in range(0,112):
-        index = np.random.choice(range(0,11200),100,replace=False)
+    for i in range(0,len(subject_files)):
+        index = np.random.choice(range(0,(len(subject_files)*100)),100,replace=False)
         sample = np.array(all_bootstraps)[index,:]
         random_bootstraps.append(sample)
 
@@ -147,7 +145,7 @@ for method in methods:
 # In[5]:
 
 
-sns.histplot(inter_variance_dict['ciplv'])
+#sns.histplot(inter_variance_dict['ciplv'])
 
 
 # In[6]:
@@ -195,8 +193,8 @@ for method in methods:
 # In[10]:
 
 
-comparison_pairs = [('coh','ciplv'), ('coh','imcoh'), ('coh','wpli2'), ('ciplv','imcoh'),('ciplv','wpli2'),('imcoh','wpli2')]
-#comparison_pairs = [('gpdc','psgp'), ('gpdc','ddtf'), ('ddtf','psgp')] #effective measures
+#comparison_pairs = [('coh','ciplv'), ('coh','imcoh'), ('coh','wpli2'), ('ciplv','imcoh'),('ciplv','wpli2'),('imcoh','wpli2')]
+comparison_pairs = [('gpdc','psgp'), ('gpdc','ddtf'), ('ddtf','psgp')] #effective measures
 
 
 # In[11]:
@@ -210,6 +208,7 @@ for pair in comparison_pairs:
 
     ci_dict[pair] = confint_95_diff(ratio_dict[method1], ratio_dict[method2])
 
+print(ci_dict)
 
 # In[ ]:
 
@@ -220,13 +219,14 @@ for pair in comparison_pairs:
 # In[14]:
 
 
-ratio_df = pd.DataFrame([ratio_dict['coh'], ratio_dict['ciplv'], ratio_dict['imcoh'], ratio_dict['wpli2']]).transpose()
-
+#ratio_df = pd.DataFrame([ratio_dict['coh'], ratio_dict['ciplv'], ratio_dict['imcoh'], ratio_dict['wpli2']]).transpose()
+ratio_df = pd.DataFrame([ratio_dict['gpdc'], ratio_dict['ddtf'], ratio_dict['psgp']]).transpose()
 
 # In[15]:
 
 
-headers =  ['Coh', 'ciPLV', 'imCoh', 'dwPLI']
+#headers =  ['Coh', 'ciPLV', 'imCoh', 'dwPLI']
+headers = ['gPDC', 'dDTF', 'pSGP']
 ratio_df.columns = headers
 
 
@@ -242,8 +242,8 @@ ratio_df_long = ratio_df.melt(var_name='Measures', value_name='Ratios')
 fig,axes = plt.subplots(1,1,figsize=(10,6))
 sns.violinplot(ratio_df, color="orange")
 axes.set(ylabel="Between-to-within subject variance")
-plt.savefig("/scratch/figures/variance_func_fig.png",dpi=300)
-
+#plt.savefig("/scratch/srishyla/figures/variance_func_fig.png",dpi=300)
+plt.savefig("/scratch/srishyla/figures/variance_eff_fig.png", dpi=300)
 
 # In[ ]:
 
